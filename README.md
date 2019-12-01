@@ -4,7 +4,7 @@ This is simple benchmark which uses lxml library to parse HTML. It performs mult
 
 ## Installation
 
-You need python3 and lxml library. You can install lxml library with command: `python3 -m pip install lxml`
+You need python3 and lxml library. You can install lxml library with command: `python3 -m pip install --user lxml`
 
 ## How to run test
 

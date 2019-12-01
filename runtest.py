@@ -75,6 +75,9 @@ def main():
             elapsed = time.time() - started
             print('%.2f sec' % elapsed)
             history.append((num_cpu, elapsed))
+        # Prevent BrokenPipeError
+        # https://stackoverflow.com/questions/36359528/broken-pipe-error-with-multiprocessing-queue
+        time.sleep(0.1)
     model_name = parse_cpu_info('model name')
     cache_size = parse_cpu_info('cache size')
     print('CPU : %s, cache=%s' % (model_name, cache_size))

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
 import time
-from multiprocessing import cpu_count, Process, Queue
+from multiprocessing import cpu_count, Process
 from urllib.request import urlopen
-from queue import Empty
 import os
 
 from lxml.html import fromstring
@@ -20,15 +19,11 @@ def parse_cpu_info(key):
     return 'NA'
 
 
-def thread_parser(data, taskq):
-    while True:
-        try:
-            taskq.get_nowait()
-        except Empty:
-            return
-        else:
-            dom = fromstring(data)
-            assert 'reddit' in dom.xpath('//title')[0].text
+def thread_parser(data, num_tasks):
+    for _ in range(num_tasks):
+        dom = fromstring(data)
+        assert 'reddit' in dom.xpath('//title')[0].text
+    print('.', end='')
 
 
 def download_file(url, path):
@@ -40,7 +35,7 @@ def download_file(url, path):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('-n', '--tasks-number', type=int, default=10)
+    parser.add_argument('-n', '--tasks-number', type=int, default=300)
     opts = parser.parse_args()
     total_num_cpu = cpu_count()
     download_file(
@@ -51,33 +46,37 @@ def main():
     with open('.reddit.html') as inp:
         data = inp.read()
 
+    print('Processing %d documents' % opts.tasks_number)
     num_cpu_used = set()
     history = []
     for div in (None, 0.25, 0.5, 0.75, 1):
-        taskq = Queue()
-        for _ in range(opts.tasks_number):
-            taskq.put(None)
-
         if div is None:
             num_cpu = 1
         else:
             num_cpu = round(total_num_cpu * div)
         if num_cpu not in num_cpu_used:
             num_cpu_used.add(num_cpu)
-            print('Using %d CPUs' % num_cpu, end=': ')
+            print('Using %d CPUs' % num_cpu, end=' ')
             started = time.time()
             pool = []
-            for _ in range(num_cpu):
-                proc = Process(target=thread_parser, args=[data, taskq])
+
+            per_proc, rest = divmod(opts.tasks_number, num_cpu)
+            proc_num_tasks = [per_proc for x in range(num_cpu)]
+            for x in range(rest):
+                proc_num_tasks[x] += 1
+
+            for pnum in range(num_cpu):
+                #proc = Process(target=thread_parser, args=[data, taskq])
+                proc = Process(
+                    target=thread_parser,
+                    args=[data, proc_num_tasks[pnum]]
+                )
                 proc.start()
                 pool.append(proc)
             [x.join() for x in pool]
             elapsed = time.time() - started
-            print('%.2f sec' % elapsed)
+            print(' %.2f sec' % elapsed)
             history.append((num_cpu, elapsed))
-        # Prevent BrokenPipeError
-        # https://stackoverflow.com/questions/36359528/broken-pipe-error-with-multiprocessing-queue
-        time.sleep(0.1)
     model_name = parse_cpu_info('model name')
     cache_size = parse_cpu_info('cache size')
     print('CPU : %s, cache=%s' % (model_name, cache_size))

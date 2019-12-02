@@ -78,7 +78,7 @@ def main():
     print('Current system load: %s  ' % load_val)
     print('Documents: %d  ' % opts.tasks_number)
     num_cpu_used = set()
-    for div in (None, 0.25, 0.5, 0.75, 1, 1.25, 1.5):
+    for div in (None, 0.25, 0.5, 0.75, 1, 1.2):
         if div is None:
             num_cpu = 1
         else:

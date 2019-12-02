@@ -14,9 +14,8 @@ from multiprocessing import cpu_count, Process
 from urllib.request import urlopen
 import os
 
-from lxml.html import fromstring
-
 NUM_DOCUMENTS = 1000
+
 
 def parse_cpu_info(key):
     try:
@@ -39,10 +38,21 @@ def parse_load_value():
     return 'NA'
 
 
-def thread_parser(data, num_tasks):
+def thread_parser_lxml(data, num_tasks):
+    from lxml.html import fromstring
+
     for _ in range(num_tasks):
         dom = fromstring(data)
         assert 'reddit' in dom.xpath('//title')[0].text
+    print('.', end='')
+
+
+def thread_parser_selectolax(data, num_tasks):
+    from selectolax.parser import HTMLParser
+
+    for _ in range(num_tasks):
+        dom = HTMLParser(data)
+        assert 'reddit' in dom.css('title')[0].text()
     print('.', end='')
 
 
@@ -56,10 +66,16 @@ def download_file(url, path):
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        '-n', '--tasks-number', type=int, default=NUM_DOCUMENTS
+        '-n', '--tasks-number', type=int, default=NUM_DOCUMENTS,
+        help='Number of documents to parse',
+    )
+    parser.add_argument(
+        '-e', '--engine', choices=['lxml', 'selectolax'],
+        default='lxml',
+        help='Parsing engine',
     )
     opts = parser.parse_args()
-    total_num_cpu = 1#cpu_count()
+    total_num_cpu = cpu_count()
     download_file(
         'https://raw.githubusercontent.com'
         '/lorien/lxmlbench/master/data/reddit.html',
@@ -77,6 +93,11 @@ def main():
     print('CPU cache: %s  ' % cache_size)
     print('Current system load: %s  ' % load_val)
     print('Documents: %d  ' % opts.tasks_number)
+
+    thread_func = {
+            'lxml': thread_parser_lxml,
+            'selectolax': thread_parser_selectolax,
+        }[opts.engine]
     num_cpu_used = set()
     for div in (None, 0.25, 0.5, 0.75, 1, 1.2):
         if div is None:
@@ -96,7 +117,7 @@ def main():
 
             for pnum in range(num_cpu):
                 proc = Process(
-                    target=thread_parser,
+                    target=thread_func,
                     args=[data, proc_num_tasks[pnum]]
                 )
                 proc.start()

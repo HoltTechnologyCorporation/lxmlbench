@@ -17,6 +17,12 @@ Command to run test: `pyton3 runtest.py`
 
 Do not be afraid to run this command. There is no `rm -rf /` inside. Yet.
 
+## Selectolax parser
+
+By default lxml library is used to parse HTML. You can use selectolax parser by providing `-e selectolax` option.
+
+To install selectolax library use command `python3 -m pip install --user selectolax`
+
 ## Support
 
 Telegram chat: [@grablab](https://t.me/grablab)

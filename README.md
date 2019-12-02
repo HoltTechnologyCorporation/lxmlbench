@@ -11,17 +11,35 @@ You need python3 and lxml library. You can install lxml library with command: `p
 
 Command to run test: `pyton3 runtest.py`
 
+
 ## One-liner
 
 `curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -`
 
 Do not be afraid to run this command. There is no `rm -rf /` inside. Yet.
 
+
 ## Selectolax parser
 
 By default lxml library is used to parse HTML. You can use selectolax parser by providing `-e selectolax` option.
 
 To install selectolax library use command `python3 -m pip install --user selectolax`
+
+
+## Usage
+
+```
+usage: runtest.py [-h] [-n TASKS_NUMBER] [-e ENGINE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n TASKS_NUMBER, --tasks-number TASKS_NUMBER
+                        Number of documents to parse. Default is 1000
+  -e ENGINE, --engine ENGINE
+                        Parsing engine, use comma to specify multiple values.
+                        Available engines: lxml, selectolax. Default is lxml.
+```
+
 
 ## Support
 

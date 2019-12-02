@@ -59,7 +59,7 @@ def main():
         '-n', '--tasks-number', type=int, default=NUM_DOCUMENTS
     )
     opts = parser.parse_args()
-    total_num_cpu = cpu_count()
+    total_num_cpu = 1#cpu_count()
     download_file(
         'https://raw.githubusercontent.com'
         '/lorien/lxmlbench/master/data/reddit.html',
@@ -82,7 +82,7 @@ def main():
         if div is None:
             num_cpu = 1
         else:
-            num_cpu = round(total_num_cpu * div)
+            num_cpu = max(1, round(total_num_cpu * div))
         if num_cpu not in num_cpu_used:
             num_cpu_used.add(num_cpu)
             print('[%d proc]' % num_cpu, end=' ')

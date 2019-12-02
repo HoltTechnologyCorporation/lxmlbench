@@ -17,3 +17,7 @@ Just run command `pyton3 runtest.py`
 `curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -`
 
 Do not be afraid to run this command. There is no `rm -rf /` inside. Yet.
+
+## Support
+
+Telegram chat: [@grablab](https://t.me/grablab)

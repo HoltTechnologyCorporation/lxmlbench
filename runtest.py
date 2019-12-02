@@ -93,6 +93,7 @@ def main():
     print('CPU cache: %s  ' % cache_size)
     print('Current system load: %s  ' % load_val)
     print('Documents: %d  ' % opts.tasks_number)
+    print('Engine: %s  ' % opts.engine)
 
     thread_func = {
             'lxml': thread_parser_lxml,

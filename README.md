@@ -4,13 +4,12 @@ This is simple benchmark which uses lxml library to parse HTML. It performs mult
 
 Check wiki to see results of test on different machines: https://github.com/lorien/lxmlbench/wiki/Test-Results
 
-## Installation
-
-You need python3 and lxml library. You can install lxml library with command: `python3 -m pip install --user lxml`
 
 ## How to run test
 
-Just run command `pyton3 runtest.py`
+You need python3 and lxml library. You can install lxml library with command: `python3 -m pip install --user lxml`
+
+Command to run test: `pyton3 runtest.py`
 
 ## One-liner
 

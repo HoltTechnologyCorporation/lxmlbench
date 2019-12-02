@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+"""
+Most of calls of print function in this code
+use double space at end of output string. It is to force
+markdown parser to enter new line, in case you want to put
+output of test into markdown document.
+
+See results of tests runned on different machines here:
+https://github.com/lorien/lxmlbench/wiki/Test-Results
+"""
 from argparse import ArgumentParser
 import time
 from multiprocessing import cpu_count, Process
@@ -62,12 +71,12 @@ def main():
     load_val = parse_load_value()
     model_name = parse_cpu_info('model name')
     cache_size = parse_cpu_info('cache size')
-    print('----- %s -----' % model_name)
+    print('### %s' % model_name)
 
-    print('CPU cores: %d' % total_num_cpu)
-    print('CPU cache: %s' % cache_size)
-    print('Current system load: %s' % load_val)
-    print('Documents: %d' % opts.tasks_number)
+    print('CPU cores: %d  ' % total_num_cpu)
+    print('CPU cache: %s  ' % cache_size)
+    print('Current system load: %s  ' % load_val)
+    print('Documents: %d  ' % opts.tasks_number)
     num_cpu_used = set()
     for div in (None, 0.25, 0.5, 0.75, 1, 1.25, 1.5):
         if div is None:
@@ -94,7 +103,7 @@ def main():
                 pool.append(proc)
             [x.join() for x in pool]
             elapsed = time.time() - started
-            print(' %.2f sec' % elapsed)
+            print(' %.2f sec  ' % elapsed)
 
 if __name__ == '__main__':
     main()

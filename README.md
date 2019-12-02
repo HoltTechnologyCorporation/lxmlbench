@@ -19,7 +19,7 @@ curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | p
 
 ## Selectolax parser
 
-By default lxml library is used to parse HTML. You can use selectolax parser by providing `-e selectolax` option.
+By default lxml library is used to parse HTML. You can use [selectolax](https://github.com/rushter/selectolax) parser by providing `-e selectolax` option.
 
 To install selectolax library use command `python3 -m pip install --user selectolax`
 

@@ -11,12 +11,10 @@ You need python3 and lxml library. You can install lxml library with command: `p
 
 Command to run test: `pyton3 runtest.py`
 
-
-## One-liner
-
-`curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -`
-
-Do not be afraid to run this command. There is no `rm -rf /` inside. Yet.
+On new machine you can use this one-line to download and run test:
+```
+curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -
+```
 
 
 ## Selectolax parser

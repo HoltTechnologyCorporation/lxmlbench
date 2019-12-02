@@ -19,6 +19,16 @@ def parse_cpu_info(key):
     return 'NA'
 
 
+def parse_load_value():
+    try:
+        with open('/proc/loadavg') as inp:
+            data = inp.read().splitlines()[0]
+            return data.split(' ')[0]
+    except IOError:
+        pass
+    return 'NA'
+
+
 def thread_parser(data, num_tasks):
     for _ in range(num_tasks):
         dom = fromstring(data)
@@ -46,17 +56,24 @@ def main():
     with open('.reddit.html') as inp:
         data = inp.read()
 
-    print('Processing %d documents' % opts.tasks_number)
+    load_val = parse_load_value()
+    model_name = parse_cpu_info('model name')
+    cache_size = parse_cpu_info('cache size')
+    print('----- %s -----' % model_name)
+
+    print('CPU cores: %d' % total_num_cpu)
+    print('CPU cache: %s' % cache_size)
+    print('Current system load: %s' % load_val)
+    print('Documents: %d' % opts.tasks_number)
     num_cpu_used = set()
-    history = []
-    for div in (None, 0.25, 0.5, 0.75, 1):
+    for div in (None, 0.25, 0.5, 0.75, 1, 1.25, 1.5):
         if div is None:
             num_cpu = 1
         else:
             num_cpu = round(total_num_cpu * div)
         if num_cpu not in num_cpu_used:
             num_cpu_used.add(num_cpu)
-            print('Using %d CPUs' % num_cpu, end=' ')
+            print('[%d proc]' % num_cpu, end=' ')
             started = time.time()
             pool = []
 
@@ -66,7 +83,6 @@ def main():
                 proc_num_tasks[x] += 1
 
             for pnum in range(num_cpu):
-                #proc = Process(target=thread_parser, args=[data, taskq])
                 proc = Process(
                     target=thread_parser,
                     args=[data, proc_num_tasks[pnum]]
@@ -76,11 +92,6 @@ def main():
             [x.join() for x in pool]
             elapsed = time.time() - started
             print(' %.2f sec' % elapsed)
-            history.append((num_cpu, elapsed))
-    model_name = parse_cpu_info('model name')
-    cache_size = parse_cpu_info('cache size')
-    print('CPU : %s, cache=%s' % (model_name, cache_size))
-    print('Time:', ', '.join('%d=%.2f' % x for x in history))
 
 if __name__ == '__main__':
     main()

@@ -7,6 +7,7 @@ import os
 
 from lxml.html import fromstring
 
+NUM_DOCUMENTS = 1000
 
 def parse_cpu_info(key):
     try:
@@ -45,7 +46,9 @@ def download_file(url, path):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('-n', '--tasks-number', type=int, default=300)
+    parser.add_argument(
+        '-n', '--tasks-number', type=int, default=NUM_DOCUMENTS
+    )
     opts = parser.parse_args()
     total_num_cpu = cpu_count()
     download_file(

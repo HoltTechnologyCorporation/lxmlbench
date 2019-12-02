@@ -1,6 +1,6 @@
 # CPU Speed Benchmark
 
-This is simple benchmark which uses lxml library to parse HTML. It performs multiple iterations using 1 CPU core, 2 CPU cores, up to all available CPU cores. On each iteration it parses 300 documents. Defalt number of documents is quite small to finish test on single CPU core in short time. You can change number of documents with `-n` option.
+This is simple benchmark which uses lxml library to parse HTML. It performs multiple iterations using 1 CPU core, 2 CPU cores, up to all available CPU cores. On each iteration it parses 1000 documents. On 2Ghz processor it takes about 40-60 seconds to process these numbers of documents on 1 core. You can change number of documents with `-n` option.
 
 ## Installation
 

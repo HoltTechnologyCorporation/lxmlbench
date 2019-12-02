@@ -117,7 +117,7 @@ def main():
         print('### %s' % model_name)
         print('CPU cores: %d  ' % total_num_cpu)
         print('CPU cache: %s  ' % cache_size)
-        print('Current system load: %s  ' % load_val)
+        print('System load before test: %s  ' % load_val)
         print('Documents: %d  ' % opts.tasks_number)
         print('Engine: %s  ' % engine)
 

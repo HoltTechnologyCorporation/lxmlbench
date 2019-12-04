@@ -40,30 +40,26 @@ def parse_load_value():
     return 'NA'
 
 
-def thread_parser_lxml(data, num_docs):
-    from lxml.html import fromstring
-
+def thread_parser_lxml(parse_func, data, num_docs):
     while True:
         with num_docs.get_lock():
             if num_docs.value == 0:
                 break
             num_docs.value -= 1
             val = num_docs.value
-        dom = fromstring(data)
+        dom = parse_func(data)
         assert 'reddit' in dom.xpath('//title')[0].text
     print('.', end='')
 
 
-def thread_parser_selectolax(data, num_docs):
-    from selectolax.parser import HTMLParser
-
+def thread_parser_selectolax(parse_func, data, num_docs):
     while True:
         with num_docs.get_lock():
             if num_docs.value == 0:
                 break
             num_docs.value -= 1
             val = num_docs.value
-        dom = HTMLParser(data)
+        dom = parse_func(data)
         assert 'reddit' in dom.css('title')[0].text()
     print('.', end='')
 
@@ -93,9 +89,26 @@ def main():
             ' Default is lxml.'
         ),
     )
+    parser.add_argument(
+        '-w', '--workers',
+        type=int,
+        help=(
+            'Run test once, only for specified number of workers.'
+        ),
+    )
     opts = parser.parse_args()
     total_num_cpu = cpu_count()
 
+    engine_func_reg = {
+        'lxml': {
+            'thread_func': thread_parser_lxml,
+            'parser_func': None,
+        },
+        'selectolax': {
+            'thread_func': thread_parser_selectolax,
+            'parser_func': None,
+        },
+    }
     engines = opts.engine.split(',')
     for engine in engines:
         if engine not in ENGINES:
@@ -103,6 +116,12 @@ def main():
                 'Invalid value for --engine option: %s\n' % engine
             )
             sys.exit(1)
+        elif engine == 'lxml':
+            from lxml.html import fromstring
+            engine_func_reg[engine]['parser_func'] = fromstring
+        elif engine == 'selectolax':
+            from selectolax.parser import HTMLParser
+            engine_func_reg[engine]['parser_func'] = HTMLParser
 
     download_file(
         'https://raw.githubusercontent.com'
@@ -115,10 +134,6 @@ def main():
     load_val = parse_load_value()
     model_name = parse_cpu_info('model name')
     cache_size = parse_cpu_info('cache size')
-    engine_func_reg = {
-        'lxml': thread_parser_lxml,
-        'selectolax': thread_parser_selectolax,
-    }
 
     for engine_idx, engine in enumerate(engines):
         if engine_idx:
@@ -131,33 +146,38 @@ def main():
         print('Documents: %d  ' % opts.tasks_number)
         print('Engine: %s  ' % engine)
 
-        num_cpu_used = set()
-
         num_docs = Value('l') # l -> signed long, 4 bytes
 
-        for div in (None, 0.25, 0.5, 0.75, 1, 1.2):
+        stages = []
+        if opts.workers:
+            stages.append(opts.workers)
+        else:
+            stages.append(1)
+            for mult in (0.25, 0.5, 0.75, 1, 1.2):
+                num = max(1, round(total_num_cpu * mult))
+                if num not in stages:
+                    stages.append(num)
+
+        for num_proc in stages:
+            started = time.time()
             num_docs.value = opts.tasks_number
+            print('[%d proc]' % num_proc, end=' ')
+            pool = []
 
-            if div is None:
-                num_cpu = 1
-            else:
-                num_cpu = max(1, round(total_num_cpu * div))
-            if num_cpu not in num_cpu_used:
-                num_cpu_used.add(num_cpu)
-                print('[%d proc]' % num_cpu, end=' ')
-                started = time.time()
-                pool = []
-
-                for pnum in range(num_cpu):
-                    proc = Process(
-                        target=engine_func_reg[engine],
-                        args=[data, num_docs]
-                    )
-                    proc.start()
-                    pool.append(proc)
-                [x.join() for x in pool]
-                elapsed = time.time() - started
-                print(' %.2f sec  ' % elapsed)
+            for _ in range(num_proc):
+                proc = Process(
+                    target=engine_func_reg[engine]['thread_func'],
+                    args=[
+                        engine_func_reg[engine]['parser_func'],
+                        data,
+                        num_docs
+                    ]
+                )
+                proc.start()
+                pool.append(proc)
+            [x.join() for x in pool]
+            elapsed = time.time() - started
+            print(' %.2f sec  ' % elapsed)
 
 if __name__ == '__main__':
     main()

@@ -11,7 +11,7 @@ https://github.com/lorien/lxmlbench/wiki/Test-Results
 import sys
 from argparse import ArgumentParser
 import time
-from multiprocessing import cpu_count, Process
+from multiprocessing import cpu_count, Process, Value
 from urllib.request import urlopen
 import os
 
@@ -40,19 +40,29 @@ def parse_load_value():
     return 'NA'
 
 
-def thread_parser_lxml(data, num_tasks):
+def thread_parser_lxml(data, num_docs):
     from lxml.html import fromstring
 
-    for _ in range(num_tasks):
+    while True:
+        with num_docs.get_lock():
+            if num_docs.value == 0:
+                return
+            num_docs.value -= 1
+            val = num_docs.value
         dom = fromstring(data)
         assert 'reddit' in dom.xpath('//title')[0].text
     print('.', end='')
 
 
-def thread_parser_selectolax(data, num_tasks):
+def thread_parser_selectolax(data, num_docs):
     from selectolax.parser import HTMLParser
 
-    for _ in range(num_tasks):
+    while True:
+        with num_docs.get_lock():
+            if num_docs.value == 0:
+                return
+            num_docs.value -= 1
+            val = num_docs.value
         dom = HTMLParser(data)
         assert 'reddit' in dom.css('title')[0].text()
     print('.', end='')
@@ -122,7 +132,12 @@ def main():
         print('Engine: %s  ' % engine)
 
         num_cpu_used = set()
+
+        num_docs = Value('l') # l -> signed long, 4 bytes
+
         for div in (None, 0.25, 0.5, 0.75, 1, 1.2):
+            num_docs.value = opts.tasks_number
+
             if div is None:
                 num_cpu = 1
             else:
@@ -133,15 +148,10 @@ def main():
                 started = time.time()
                 pool = []
 
-                per_proc, rest = divmod(opts.tasks_number, num_cpu)
-                proc_num_tasks = [per_proc for x in range(num_cpu)]
-                for x in range(rest):
-                    proc_num_tasks[x] += 1
-
                 for pnum in range(num_cpu):
                     proc = Process(
                         target=engine_func_reg[engine],
-                        args=[data, proc_num_tasks[pnum]]
+                        args=[data, num_docs]
                     )
                     proc.start()
                     pool.append(proc)

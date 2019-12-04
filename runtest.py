@@ -46,7 +46,7 @@ def thread_parser_lxml(data, num_docs):
     while True:
         with num_docs.get_lock():
             if num_docs.value == 0:
-                return
+                break
             num_docs.value -= 1
             val = num_docs.value
         dom = fromstring(data)
@@ -60,7 +60,7 @@ def thread_parser_selectolax(data, num_docs):
     while True:
         with num_docs.get_lock():
             if num_docs.value == 0:
-                return
+                break
             num_docs.value -= 1
             val = num_docs.value
         dom = HTMLParser(data)

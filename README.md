@@ -1,8 +1,8 @@
 # CPU Speed Benchmark
 
-This is simple benchmark which uses lxml library to parse HTML. It performs multiple iterations using 1 CPU core, 2 CPU cores, up to all available CPU cores. On each iteration it parses 1000 documents. On 2Ghz processor it takes about 40-60 seconds to process these numbers of documents on 1 core. You can change number of documents with `-n` option.
+This is simple benchmark which uses lxml library to parse HTML. It performs multiple iterations using 1 CPU core, 2 CPU cores, up to all available CPU cores. On each iteration it parses 1000 documents. On 2Ghz processor it takes about 40-60 seconds to process these number of documents on 1 core. You can change number of documents with `-n` option.
 
-Check wiki to see results of test on different machines: https://github.com/lorien/lxmlbench/wiki/Test-Results
+Check wiki to see results of tests on different machines: https://github.com/lorien/lxmlbench/wiki/Test-Results
 
 
 ## How to run test
@@ -11,7 +11,7 @@ You need python3 and lxml library. You can install lxml library with command: `p
 
 Command to run test: `pyton3 runtest.py`
 
-On new machine you can use this one-line to download and run test:
+On new machine you can use this one-liner to download and run test:
 ```
 curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -
 ```

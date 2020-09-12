@@ -16,6 +16,8 @@ On new machine you can use this one-liner to download and run test:
 curl -s https://raw.githubusercontent.com/lorien/lxmlbench/master/runtest.py | python3 -
 ```
 
+You might need to install lxml. Use `pip3 install lxml`. If you do not have pip installed then on Debian/Ubuntu use `sudo apt install python3-lxml`.
+
 
 ## Selectolax parser
 
